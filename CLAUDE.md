@@ -1,6 +1,10 @@
-# Claude Code Web UI
+# CLAUDE.md
 
-A web-based interface for the `claude` command line tool that provides streaming responses in a chat interface.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+# Spicy Claude
+
+A web-based interface for Claude Code CLI with a **Dangerous Mode** that bypasses all permission prompts. This is a fork of claude-code-webui v0.1.56 by sugyan.
 
 ## Code Quality
 
@@ -26,7 +30,7 @@ lefthook run pre-commit
 
 ### Backend (Deno/Node.js)
 
-- **Location**: `backend/` | **Port**: 8080 (configurable)
+- **Location**: `backend/` | **Port**: 8080 (configurable) | **Host**: 127.0.0.1 default, 0.0.0.0 in production
 - **Technology**: TypeScript + Hono framework with runtime abstraction
 - **Purpose**: Executes `claude` commands and streams JSON responses
 
@@ -53,6 +57,19 @@ lefthook run pre-commit
 **Location**: `shared/` - TypeScript type definitions shared between backend and frontend
 
 **Key Types**: `StreamResponse`, `ChatRequest`, `AbortRequest`, `ProjectInfo`, `ConversationSummary`, `ConversationHistory`
+
+## Dangerous Mode (Spicy Claude's Key Feature)
+
+**4th permission mode** that completely bypasses ALL permission checks. When enabled, Claude executes ANY command without prompting.
+
+**Activation**: Press `Ctrl+Shift+M` (or `Cmd+Shift+M` on Mac) **three times** to cycle to Dangerous Mode. Visual indicators include red floating badge, red border around input, red button text, and console warning.
+
+**Implementation**:
+- Frontend: `usePermissionMode` hook tracks mode state, `PlanPermissionInputPanel` component provides UI
+- Backend: `allowedTools` parameter in chat requests - when set to `["*"]`, all tools are pre-allowed
+- Session persistence: Mode state saved per conversation
+
+**Use Cases**: Trusted development environments, sandboxed containers, personal projects. **Never use in production or with untrusted code.**
 
 ## Claude Command Integration
 
@@ -174,6 +191,7 @@ npm run dev
 4. **Modular Architecture**: Specialized hooks and components for maintainability
 5. **TypeScript Throughout**: Consistent type safety across all components
 6. **Project Directory Selection**: User-chosen working directories for contextual file access
+7. **Network Accessibility**: Production configured for local network access (0.0.0.0) while development defaults to localhost for security
 
 ## Claude Code SDK Types Reference
 
@@ -197,19 +215,40 @@ console.log(systemMsg.cwd);
 
 **Key Points**: System fields directly on object, Assistant content nested under `message.content`, Result has `subtype` field
 
-## Permission Mode Switching
+## Testing and Deployment
 
-UI-driven plan mode functionality allowing users to toggle between normal execution and plan mode.
+### Automated Testing
 
-**Features**: Normal/Plan mode toggle, UI integration, session persistence
-**Implementation**: `usePermissionMode` hook, `PlanPermissionInputPanel` component
-**Usage**: Toggle in chat input → send message → review plan → choose action
+**Frontend Unit Tests**: Vitest + Testing Library (`make test-frontend`)
+**Backend Unit Tests**: Deno test runner (`make test-backend`)
+**E2E UI Tests**: 20 Playwright tests covering permissions, bypass mode, chat functionality
+  - Run all tests: `npm run test:ui` (~15 minutes)
+  - Bypass mode only: `npm run test:bypass`
+  - View report: `npm run test:report`
+  - See `tests/README.md` and `tests/TESTING-STATUS.md` for details
 
-## Testing
+**Unified**: `make test` runs both frontend and backend unit tests
 
-**Frontend**: Vitest + Testing Library (`make test-frontend`)
-**Backend**: Deno test runner (`make test-backend`)  
-**Unified**: `make test` runs both, `make check` includes in quality validation
+### Production Deployment
+
+**Target Environment**: macOS LaunchAgent (port 3002), accessible via local network, manual-only updates
+
+**Key Scripts** (in `deployment/`):
+- `install.sh` - Setup service with LaunchAgent configuration
+- `start.sh` / `stop.sh` / `restart.sh` - Service management
+- `status.sh` - Check service health
+
+**Documentation**:
+- `docs/DEPLOYMENT.md` - Installation and LaunchAgent setup
+- `docs/OPERATIONS.md` - Day-to-day operations and troubleshooting
+- `docs/MONITORING.md` - Prometheus alerts, Grafana dashboards, Slack notifications
+- `docs/UPDATES.md` - Manual update procedures (no automation by design)
+
+**Quick Status Check**:
+```bash
+cd deployment && ./status.sh
+tail -f ~/Library/Logs/spicy-claude/stdout.log
+```
 
 ## Single Binary Distribution
 
@@ -250,6 +289,19 @@ cd backend && deno task build  # Local building
 
 ## Development Workflow
 
+### Network Configuration
+
+**Production**: Binds to `0.0.0.0:3002` (all interfaces) for local network access
+**Development**: Binds to `127.0.0.1` by default (localhost only)
+
+The `--host` parameter controls network binding:
+- Backend supports `--host <address>` CLI argument
+- Production LaunchAgent configured with `--host 0.0.0.0`
+- Frontend uses relative API paths (works automatically)
+- CORS set to `origin: "*"` for cross-origin access
+
+To change network binding, edit the LaunchAgent plist and restart the service.
+
 ### Pull Request Process
 
 1. Create feature branch: `git checkout -b feature/name`
@@ -272,18 +324,19 @@ cd backend && deno task build  # Local building
 3. Merge release PR → automatic tag creation
 4. GitHub Actions builds binaries automatically
 
-### GitHub Sub-Issues API
-
-```bash
-gh issue create --title "Sub-issue" --label "feature"
-SUB_ISSUE_ID=$(gh api repos/sugyan/claude-code-webui/issues/NUM --jq '.id')
-gh api repos/sugyan/claude-code-webui/issues/PARENT/sub_issues --method POST --field sub_issue_id=$SUB_ISSUE_ID
-```
-
 ### Viewing Copilot Review Comments
 
 ```bash
-gh api repos/sugyan/claude-code-webui/pulls/PR_NUMBER/comments
+gh api repos/edwardhallam/spicy-claude/pulls/PR_NUMBER/comments
 ```
 
 **Important**: Always run commands from project root. Use full paths for cd commands to avoid directory navigation issues.
+
+## Project Distinguishing Features
+
+This fork (Spicy Claude) differs from the upstream claude-code-webui in these key ways:
+
+1. **Dangerous Mode**: 4th permission mode that bypasses all prompts - the primary feature
+2. **Production Deployment**: LaunchAgent setup for macOS with comprehensive ops documentation
+3. **Comprehensive E2E Testing**: 20 Playwright tests for UI verification including bypass mode
+4. **Manual-Only Updates**: No automated updates by design for production stability

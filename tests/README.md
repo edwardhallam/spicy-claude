@@ -13,7 +13,7 @@ This test suite enables agents to autonomously test behavioral differences betwe
 ### Run All Tests
 
 ```bash
-cd /Users/edwardhallam/projects/spicy-claude
+cd /path/to/spicy-claude
 npm run test:ui
 ```
 
@@ -117,7 +117,7 @@ Both servers must be running before tests:
 claude-code-webui --port 3002
 
 # Terminal 2: Spicy Claude
-cd /Users/edwardhallam/projects/spicy-claude/backend
+cd /path/to/spicy-claude/backend
 node dist/cli/node.js --port 3003
 ```
 
@@ -136,7 +136,7 @@ curl -I http://localhost:3003  # Should return 200
 import { test, expect } from '../../fixtures/app-fixture';
 import { clearBrowserState, selectProject, sendMessage, waitForResponse } from '../../utils/test-helpers';
 
-const TEST_PROJECT = '/Users/edwardhallam/projects/homelab-conductor';
+const TEST_PROJECT = '/path/to/test-project';
 
 test.describe('My New Test Suite', () => {
   test.beforeEach(async ({ oldApp, spicyApp }) => {
@@ -261,7 +261,7 @@ ps aux | grep -E "(claude-code-webui|node.*dist/cli)"
 
 # If not, start them
 claude-code-webui --port 3002 &
-cd /Users/edwardhallam/projects/spicy-claude/backend && node dist/cli/node.js --port 3003 &
+cd /path/to/spicy-claude/backend && node dist/cli/node.js --port 3003 &
 ```
 
 ### "Browser not found"
@@ -330,7 +330,7 @@ reporter: [
 
 ```bash
 # Run full test suite
-cd /Users/edwardhallam/projects/spicy-claude
+cd /path/to/spicy-claude
 npm run test:ui
 
 # Generate summary report

@@ -1,0 +1,40 @@
+[Unit]
+Description=Spicy Claude - Web Interface for Claude Code CLI
+Documentation=https://github.com/edwardhallam/spicy-claude
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+Group=YOUR_GROUP
+WorkingDirectory=/path/to/spicy-claude/backend
+
+# Main service command
+ExecStart=/usr/bin/node /path/to/spicy-claude/backend/dist/cli/node.js --port 8080 --host 0.0.0.0
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Resource limits
+MemoryLimit=2G
+CPUQuota=200%
+
+# Logging
+StandardOutput=append:/var/log/spicy-claude/stdout.log
+StandardError=append:/var/log/spicy-claude/stderr.log
+SyslogIdentifier=spicy-claude
+
+# Environment variables
+Environment="NODE_ENV=production"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+# Security hardening (optional but recommended)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/log/spicy-claude
+
+[Install]
+WantedBy=multi-user.target

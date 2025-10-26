@@ -98,6 +98,7 @@ Instead of being limited to command-line interactions, Claude Code Web UI brings
 ### 🎯 Key Features
 
 - **☠️ DANGEROUS MODE** - 4th permission mode that bypasses ALL prompts (new in Spicy Claude!)
+- **🌐 Local network access** - Accessible from any device on your network
 - **📋 Permission Mode Switching** - Toggle between normal, plan, accept edits, and dangerous modes
 - **🔄 Real-time streaming responses** - Live Claude Code output in chat interface
 - **📁 Project directory selection** - Visual project picker for context-aware sessions
@@ -105,6 +106,37 @@ Instead of being limited to command-line interactions, Claude Code Web UI brings
 - **🛠️ Tool permission management** - Granular control over Claude's tool access (or bypass entirely)
 - **🎨 Dark/light theme support** - Automatic system preference detection
 - **📱 Mobile-responsive design** - Touch-optimized interface including iOS Safari
+
+## 📚 Documentation
+
+**Production Deployment** (port 3002, macOS LaunchAgent):
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Installation, service management, LaunchAgent configuration
+- **[Operations Guide](docs/OPERATIONS.md)** - Day-to-day tasks, troubleshooting, maintenance
+- **[Monitoring](docs/MONITORING.md)** - Prometheus alerts, Grafana dashboards, Slack notifications
+- **[Updates](docs/UPDATES.md)** - **Manual-only** update policy and procedures (no automation)
+
+**Testing** (20 Playwright UI tests, 100% passing):
+- **[Testing Guide](tests/README.md)** - Full test suite documentation
+- **[Test Status](tests/TESTING-STATUS.md)** - Current status and quick reference
+
+**Quick Commands**:
+```bash
+# Service Management
+cd deployment && ./status.sh   # Check service status
+cd deployment && ./restart.sh  # Restart service
+
+# Testing
+npm run test:ui               # Run all tests (~15 min)
+npm run test:bypass           # Bypass mode tests only
+npm run test:report           # View HTML test report
+
+# Logs
+tail -f ~/Library/Logs/spicy-claude/stdout.log
+
+# Monitoring
+open http://localhost:9090    # Prometheus
+open http://localhost:3002    # Spicy Claude UI
+```
 
 ---
 
@@ -130,7 +162,10 @@ cd backend && npm run build && cd ..
 # Start the server
 cd backend && node dist/cli/node.js
 
-# Open browser to http://localhost:8080
+# Access the application:
+# - From the host machine: http://localhost:8080
+# - From other devices on your network: http://<host-ip>:8080
+#   - Find your host IP: ifconfig | grep "inet " | grep -v 127.0.0.1
 ```
 
 ### Option 2: Development Mode
@@ -143,7 +178,10 @@ cd backend && npm run dev      # Node.js runtime
 # Frontend (new terminal)
 cd frontend && npm run dev
 
-# Open browser to http://localhost:3000
+# Access the application:
+# - From the host machine: http://localhost:3000
+# - From other devices on your network: http://<host-ip>:3000
+#   - Find your host IP: ifconfig | grep "inet " | grep -v 127.0.0.1
 ```
 
 ### Prerequisites
@@ -207,6 +245,31 @@ In Dangerous Mode: ✅ Executes immediately, no prompts
 - Shared computers
 - When working with unfamiliar codebases
 - When you're unsure what Claude will do
+
+---
+
+## 🌐 Network Access
+
+By default, Spicy Claude is configured to be accessible from any device on your local network.
+
+### Accessing the Application
+
+- **From the host machine**: http://localhost:3002
+- **From other devices**: http://<host-machine-ip>:3002
+  - To find your machine's IP: `ifconfig | grep "inet " | grep -v 127.0.0.1`
+  - Example: http://192.168.1.50:3002
+
+### Security Considerations
+
+- Any device on your local network can access the application
+- NOT accessible from the internet (with standard home network setup)
+- No authentication is currently implemented
+- Intended for trusted local network use only
+
+To restrict access to localhost only:
+1. Edit the plist: `~/Library/LaunchAgents/com.homelab.spicy-claude.plist`
+2. Change `<string>0.0.0.0</string>` to `<string>127.0.0.1</string>`
+3. Restart: `cd deployment && ./restart.sh`
 
 ---
 
@@ -340,6 +403,18 @@ Alternative: Set environment variables directly:
 ```bash
 PORT=9000 deno task dev     # Deno
 PORT=9000 npm run dev       # Node.js
+```
+
+### Network Configuration
+
+The backend supports a `--host` parameter to control network binding:
+- `--host 127.0.0.1` - Localhost only (development default)
+- `--host 0.0.0.0` - All interfaces (production default)
+
+Development mode binds to localhost by default. To test network access during development, use:
+```bash
+cd backend
+deno task dev -- --host 0.0.0.0  # or npm run dev -- --host 0.0.0.0
 ```
 
 ---

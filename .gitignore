@@ -19,3 +19,21 @@ tests/reports/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+
+# Auto-updater state files
+.auto-updater.lock
+.last-auto-update
+
+# Backup branches (local only)
+# Note: These are kept in git but shouldn't be pushed
+# backup-*
+
+# Temporary files
+*.log
+*.tmp
+/tmp/

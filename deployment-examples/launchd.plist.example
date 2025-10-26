@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Service identifier -->
+    <key>Label</key>
+    <string>com.spicyclaude.service</string>
+
+    <!-- Command to run -->
+    <key>Program</key>
+    <string>/usr/local/bin/node</string>
+
+    <!-- Command arguments -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/node</string>
+        <string>/path/to/spicy-claude/backend/dist/cli/node.js</string>
+        <string>--port</string>
+        <string>8080</string>
+        <string>--host</string>
+        <string>0.0.0.0</string>
+    </array>
+
+    <!-- Working directory -->
+    <key>WorkingDirectory</key>
+    <string>/path/to/spicy-claude/backend</string>
+
+    <!-- Start on load -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Keep alive (restart if crashes) -->
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Standard output log -->
+    <key>StandardOutPath</key>
+    <string>/Users/YOUR_USERNAME/Library/Logs/spicy-claude/stdout.log</string>
+
+    <!-- Standard error log -->
+    <key>StandardErrorPath</key>
+    <string>/Users/YOUR_USERNAME/Library/Logs/spicy-claude/stderr.log</string>
+
+    <!-- Environment variables -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>NODE_ENV</key>
+        <string>production</string>
+    </dict>
+
+    <!-- Optional: Throttle interval (minimum seconds between restarts) -->
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+</dict>
+</plist>
+
+<!--
+Setup Instructions:
+
+1. Create log directory:
+   mkdir -p ~/Library/Logs/spicy-claude
+
+2. Customize this file:
+   - Replace /path/to/spicy-claude with your actual path
+   - Replace YOUR_USERNAME with your macOS username
+   - Update node path if different (check with: which node)
+   - Adjust port if needed
+
+3. Copy to LaunchAgents directory:
+   cp launchd.plist.example ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+4. Load the service:
+   launchctl load ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+5. Check status:
+   launchctl list | grep spicyclaude
+
+6. View logs:
+   tail -f ~/Library/Logs/spicy-claude/stdout.log
+   tail -f ~/Library/Logs/spicy-claude/stderr.log
+
+Management Commands:
+
+# Start service
+launchctl load ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+# Stop service
+launchctl unload ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+# Restart service
+launchctl unload ~/Library/LaunchAgents/com.spicyclaude.service.plist
+launchctl load ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+# Check if running
+launchctl list | grep spicyclaude
+ps aux | grep "spicy-claude"
+
+Troubleshooting:
+
+# If service won't start:
+1. Check permissions:
+   chmod 644 ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+2. Verify paths are correct:
+   cat ~/Library/LaunchAgents/com.spicyclaude.service.plist
+
+3. Check logs:
+   tail -50 ~/Library/Logs/spicy-claude/stderr.log
+
+4. Test command manually:
+   cd /path/to/spicy-claude/backend
+   node dist/cli/node.js --port 8080
+
+# If node not found:
+1. Find node path:
+   which node
+
+2. Update plist with correct path
+
+# If port already in use:
+1. Find process using port:
+   lsof -i :8080
+
+2. Kill process or change port in plist
+-->
