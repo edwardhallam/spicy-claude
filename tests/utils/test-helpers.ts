@@ -65,31 +65,43 @@ export async function sendMessage(page: Page, message: string): Promise<void> {
  * @param timeout - Maximum time to wait in milliseconds
  * @returns Promise that resolves when response is complete
  */
-export async function waitForResponse(page: Page, timeout: number = 30000): Promise<{
+export async function waitForResponse(page: Page, timeout: number = 60000): Promise<{
   success: boolean;
   text: string;
   error?: string;
 }> {
-  // Wait for loading to stop
-  const loadingIndicator = page.locator('text=Processing..., text=...');
-  await loadingIndicator.waitFor({ state: 'hidden', timeout }).catch(() => {
-    // Loading might already be done
-  });
+  // Wait for at least one assistant message to appear
+  const messages = page.locator('[role="article"]');
 
-  // Get the last assistant message
-  const messages = page.locator('[role="article"]').last();
-  const text = await messages.textContent() || '';
+  try {
+    // Wait for at least one message to exist with the full timeout
+    await messages.first().waitFor({ state: 'visible', timeout });
 
-  // Check for error indicators
-  const hasError = text.toLowerCase().includes('error') ||
-                   text.toLowerCase().includes('failed') ||
-                   text.toLowerCase().includes('cannot');
+    // Wait a bit for the message to finish rendering
+    await page.waitForTimeout(1000);
 
-  return {
-    success: !hasError,
-    text,
-    error: hasError ? text : undefined,
-  };
+    // Get the last assistant message
+    const lastMessage = messages.last();
+    const text = await lastMessage.textContent({ timeout: 5000 }) || '';
+
+    // Check for error indicators
+    const hasError = text.toLowerCase().includes('error') ||
+                     text.toLowerCase().includes('failed') ||
+                     text.toLowerCase().includes('cannot');
+
+    return {
+      success: !hasError,
+      text,
+      error: hasError ? text : undefined,
+    };
+  } catch (error) {
+    // If we timeout, return failure
+    return {
+      success: false,
+      text: '',
+      error: `Timeout waiting for response: ${error}`,
+    };
+  }
 }
 
 /**

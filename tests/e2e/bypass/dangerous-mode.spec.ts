@@ -42,7 +42,7 @@ test.describe('Bypass Permissions Mode', () => {
     const prompted = await verifyPermissionPrompt(spicyApp);
     expect(prompted).toBe(false);
 
-    const response = await waitForResponse(spicyApp, 60000); // Longer timeout for first test
+    const response = await waitForResponse(spicyApp, 90000); // Extra long timeout for API call
     const exists = await fileExists(testFile);
 
     // Cleanup
