@@ -46,7 +46,7 @@ describe("App Routing", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Claude Code Web UI")).toBeInTheDocument();
+      expect(screen.getByText(/Spicy Claude/)).toBeInTheDocument();
       expect(screen.getByText("/test-path")).toBeInTheDocument();
     });
   });
