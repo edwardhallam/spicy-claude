@@ -10,3 +10,9 @@ frontend/demo-recordings/
 frontend/test-results/
 frontend/playwright-report/
 frontend/playwright/.cache/
+
+# UI Test artifacts (root-level Playwright tests)
+tests/reports/
+test-results/
+playwright-report/
+playwright/.cache/

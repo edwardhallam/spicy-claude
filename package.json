@@ -1,0 +1,21 @@
+{
+  "name": "spicy-claude-ui-tests",
+  "version": "1.0.0",
+  "description": "Automated UI testing for Spicy Claude using Playwright",
+  "scripts": {
+    "test:ui": "playwright test",
+    "test:ui:headed": "playwright test --headed",
+    "test:ui:debug": "playwright test --debug",
+    "test:comparison": "playwright test tests/e2e/comparison",
+    "test:permissions": "playwright test tests/e2e/permissions",
+    "test:bypass": "playwright test tests/e2e/bypass",
+    "test:report": "playwright show-report tests/reports/html",
+    "test:ui:codegen": "playwright codegen http://localhost:3003"
+  },
+  "keywords": ["playwright", "testing", "ui", "e2e", "claude-code"],
+  "author": "Edward Hallam",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}
