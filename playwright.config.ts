@@ -20,6 +20,9 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
 
+  /* Increase test timeout to accommodate slow Claude API calls */
+  timeout: 120000, // 2 minutes per test (Claude API calls can take 60-90s)
+
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
 

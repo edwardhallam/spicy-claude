@@ -84,15 +84,25 @@ export async function waitForResponse(page: Page, timeout: number = 60000): Prom
     const lastMessage = messages.last();
     const text = await lastMessage.textContent({ timeout: 5000 }) || '';
 
-    // Check for error indicators
+    // Check for success indicators (positive signals)
+    const hasSuccess = text.toLowerCase().includes('done') ||
+                      text.toLowerCase().includes('created') ||
+                      text.toLowerCase().includes('result') ||
+                      text.toLowerCase().includes('success');
+
+    // Check for error indicators (negative signals)
     const hasError = text.toLowerCase().includes('error') ||
                      text.toLowerCase().includes('failed') ||
-                     text.toLowerCase().includes('cannot');
+                     text.toLowerCase().includes('cannot') ||
+                     text.toLowerCase().includes('unable');
+
+    // Success if we see success indicators and no error indicators
+    const success = hasSuccess && !hasError;
 
     return {
-      success: !hasError,
+      success,
       text,
-      error: hasError ? text : undefined,
+      error: !success ? text : undefined,
     };
   } catch (error) {
     // If we timeout, return failure
