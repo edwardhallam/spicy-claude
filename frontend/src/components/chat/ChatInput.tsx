@@ -157,6 +157,8 @@ export function ChatInput({
         return "⏸ plan mode";
       case "acceptEdits":
         return "⏵⏵ accept edits";
+      case "dangerous":
+        return "☠️ DANGEROUS MODE (bypass all)";
     }
   };
 
@@ -169,12 +171,14 @@ export function ChatInput({
         return "plan mode";
       case "acceptEdits":
         return "accept edits";
+      case "dangerous":
+        return "DANGEROUS MODE (bypass all)";
     }
   };
 
   // Get next permission mode for cycling
   const getNextPermissionMode = (current: PermissionMode): PermissionMode => {
-    const modes: PermissionMode[] = ["default", "plan", "acceptEdits"];
+    const modes: PermissionMode[] = ["default", "plan", "acceptEdits", "dangerous"];
     const currentIndex = modes.indexOf(current);
     return modes[(currentIndex + 1) % modes.length];
   };
@@ -222,7 +226,11 @@ export function ChatInput({
             isLoading && currentRequestId ? "Processing..." : "Type message..."
           }
           rows={1}
-          className={`w-full px-4 py-3 pr-20 bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm shadow-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none overflow-hidden min-h-[48px] max-h-[${UI_CONSTANTS.TEXTAREA_MAX_HEIGHT}px]`}
+          className={`w-full px-4 py-3 pr-20 bg-white/80 dark:bg-slate-800/80 border ${
+            permissionMode === "dangerous"
+              ? "border-red-500 dark:border-red-400 ring-2 ring-red-500/20"
+              : "border-slate-200 dark:border-slate-700"
+          } rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm shadow-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none overflow-hidden min-h-[48px] max-h-[${UI_CONSTANTS.TEXTAREA_MAX_HEIGHT}px]`}
           disabled={isLoading}
         />
         <div className="absolute right-2 bottom-3 flex gap-2">
@@ -252,7 +260,11 @@ export function ChatInput({
         onClick={() =>
           onPermissionModeChange(getNextPermissionMode(permissionMode))
         }
-        className="w-full px-4 py-1 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-mono text-left transition-colors cursor-pointer"
+        className={`w-full px-4 py-1 text-xs font-mono text-left transition-colors cursor-pointer ${
+          permissionMode === "dangerous"
+            ? "text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-bold"
+            : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+        }`}
         title={`Current: ${getPermissionModeName(permissionMode)} - Click to cycle (Ctrl+Shift+M)`}
       >
         {getPermissionModeIndicator(permissionMode)}
