@@ -86,8 +86,8 @@ jobs:
           PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
         run: |
           # Setup public remote (using token for authentication)
-          git remote add public https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/edwardhallam/spicy-claude-public.git || true
-          git remote set-url public https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/edwardhallam/spicy-claude-public.git
+          git remote add public https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/edwardhallam/spicy-claude.git || true
+          git remote set-url public https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/edwardhallam/spicy-claude.git
 
           # Push public-main branch to public repo's main branch
           git checkout public-main
@@ -105,7 +105,7 @@ jobs:
 
           # Create release in public repo
           gh release create ${{ steps.tag.outputs.tag_name }} \
-            --repo edwardhallam/spicy-claude-public \
+            --repo edwardhallam/spicy-claude \
             --title "Spicy Claude ${{ steps.tag.outputs.tag_name }}" \
             --notes "${RELEASE_NOTES}" \
             --draft=false \
@@ -129,7 +129,7 @@ jobs:
                   "fields": [
                     {"title": "Tag", "value": "'"${{ steps.tag.outputs.tag_name }}"'", "short": true},
                     {"title": "Is Release", "value": "'"${{ steps.tag.outputs.is_release }}"'", "short": true},
-                    {"title": "Public Repo", "value": "https://github.com/edwardhallam/spicy-claude-public", "short": false}
+                    {"title": "Public Repo", "value": "https://github.com/edwardhallam/spicy-claude", "short": false}
                   ],
                   "footer": "Spicy Claude Public Sync"
                 }]

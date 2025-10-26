@@ -96,7 +96,7 @@ echo ""
 echo "🔧 Sanitizing README.md..."
 if [ -f "README.md" ] && [ "${DRY_RUN}" = false ]; then
     sed -i.bak \
-        -e 's|edwardhallam/spicy-claude|edwardhallam/spicy-claude-public|g' \
+        -e 's|edwardhallam/spicy-claude-dev|edwardhallam/spicy-claude|g' \
         -e 's|com.homelab|com.example|g' \
         README.md
     rm -f README.md.bak
@@ -111,9 +111,9 @@ echo ""
 echo "🔧 Sanitizing package.json files..."
 for pkg_file in backend/package.json frontend/package.json; do
     if [ -f "${pkg_file}" ] && [ "${DRY_RUN}" = false ]; then
-        if grep -q "edwardhallam/spicy-claude" "${pkg_file}" 2>/dev/null; then
+        if grep -q "edwardhallam/spicy-claude-dev" "${pkg_file}" 2>/dev/null; then
             sed -i.bak \
-                -e 's|edwardhallam/spicy-claude|edwardhallam/spicy-claude-public|g' \
+                -e 's|edwardhallam/spicy-claude-dev|edwardhallam/spicy-claude|g' \
                 "${pkg_file}"
             rm -f "${pkg_file}.bak"
             git add "${pkg_file}"
@@ -197,7 +197,7 @@ for pattern in "${SECRET_PATTERNS[@]}"; do
         | grep -v "scripts/sync-to-public.sh" \
         | grep -v "package-lock.json" \
         | grep -v '\${{ secrets\.' \
-        | grep -v "edwardhallam/spicy-claude-public" \
+        | grep -v "edwardhallam/spicy-claude" \
         | grep -v "SLACK_WEBHOOK_URL" \
         | grep -v "GitHub personal access token"; then
         echo "  ⚠️  Found potential secret pattern: ${pattern}"
@@ -217,7 +217,7 @@ for pattern in "${PERSONAL_PATTERNS[@]}"; do
     if git grep -E "${pattern}" ${EXCLUDE_PATTERNS} -- '*.sh' '*.md' '*.yml' '*.yaml' '*.json' 2>/dev/null \
         | grep -v ".github/public-repo-filter.txt" \
         | grep -v "scripts/sync-to-public.sh" \
-        | grep -v "edwardhallam/spicy-claude-public" \
+        | grep -v "edwardhallam/spicy-claude" \
         | grep -v "/path/to/"; then
         echo "  ⚠️  Found personal reference that should be sanitized: ${pattern}"
         FOUND_SECRETS=true
@@ -283,7 +283,7 @@ if [ "${DRY_RUN}" = false ]; then
     echo "  2. Push to public repo: git push public ${PUBLIC_BRANCH}:main --force"
     echo ""
     echo "Note: You'll need to set up the 'public' remote:"
-    echo "  git remote add public https://github.com/edwardhallam/spicy-claude-public.git"
+    echo "  git remote add public https://github.com/edwardhallam/spicy-claude.git"
 else
     echo ""
     echo "[DRY RUN] Complete. Run without 'dry-run' to actually perform the sync."
