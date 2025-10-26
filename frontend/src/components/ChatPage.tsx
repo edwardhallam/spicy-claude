@@ -7,6 +7,7 @@ import type {
   ProjectInfo,
   PermissionMode,
 } from "../types";
+import { toSDKPermissionMode } from "../types";
 import { useClaudeStreaming } from "../hooks/useClaudeStreaming";
 import { useChatState } from "../hooks/chat/useChatState";
 import { usePermissions } from "../hooks/chat/usePermissions";
@@ -54,19 +55,6 @@ export function ChatPage() {
 
   // Permission mode state management
   const { permissionMode, setPermissionMode } = usePermissionMode();
-
-  // Console warning when dangerous mode is activated
-  useEffect(() => {
-    if (permissionMode === "dangerous") {
-      console.warn(
-        "%c⚠️ DANGEROUS MODE ENABLED",
-        "color: #DC2626; font-weight: bold; font-size: 16px;",
-      );
-      console.warn(
-        "All permission checks are bypassed. Claude can execute ANY command without prompting.",
-      );
-    }
-  }, [permissionMode]);
 
   // Get encoded name for current working directory
   const getEncodedName = useCallback(() => {
@@ -189,7 +177,7 @@ export function ChatPage() {
             ...(currentSessionId ? { sessionId: currentSessionId } : {}),
             allowedTools: tools || allowedTools,
             ...(workingDirectory ? { workingDirectory } : {}),
-            permissionMode: overridePermissionMode || permissionMode,
+            permissionMode: toSDKPermissionMode(overridePermissionMode || permissionMode),
           } as ChatRequest),
         });
 
@@ -448,12 +436,6 @@ export function ChatPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-      {/* Dangerous Mode Warning Badge */}
-      {permissionMode === "dangerous" && (
-        <div className="fixed top-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg font-bold text-sm">
-          🚨 DANGEROUS MODE - All permissions bypassed
-        </div>
-      )}
       <div className="max-w-6xl mx-auto p-3 sm:p-6 h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-8 flex-shrink-0">

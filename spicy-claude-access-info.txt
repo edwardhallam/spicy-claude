@@ -1,0 +1,50 @@
+# Spicy Claude - Production Server Access Information
+
+## Local Access (Mac)
+URL: http://localhost:3456
+
+## iOS Safari Access
+1. Get your Mac's IP address:
+   - Open System Settings → Network
+   - Note your IP (e.g., 192.168.1.XXX)
+   
+2. On iPhone/iPad:
+   - Open Safari
+   - Navigate to: http://[YOUR_MAC_IP]:3456
+   - Example: http://192.168.1.100:3456
+
+## Server Management
+
+### Stop Server:
+pkill -f "node dist/cli/node.js"
+
+### Start Server:
+cd /Users/edwardhallam/projects/spicy-claude/backend
+node dist/cli/node.js --port 3456 &
+
+### Check Server Status:
+ps aux | grep "node dist/cli/node.js" | grep -v grep
+
+### View Server Logs:
+(Server running in background - check for errors in terminal where launched)
+
+## Important Testing Notes
+
+1. DANGEROUS MODE is the primary feature to test
+   - Press Ctrl+Shift+M three times (or click mode button 3 times)
+   - Look for RED visual warnings (badge, border, button text)
+   - Test that it ACTUALLY bypasses permissions
+
+2. iOS Safari testing is CRITICAL
+   - User will primarily access from mobile
+   - Test all modes work on touch interface
+   - Verify layout is responsive
+
+3. Test with SAFE commands first:
+   - "List files in /tmp"
+   - "Create /tmp/test-file.txt"
+   - DO NOT test with system-critical commands until verified working
+
+## Quick Test Command
+curl -s http://localhost:3456/ | grep -i "title"
+Expected: <title>Spicy Claude</title>
