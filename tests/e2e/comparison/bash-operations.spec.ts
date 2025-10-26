@@ -23,10 +23,10 @@ const TIMESTAMP = Date.now();
 
 test.describe('Bash Operations', () => {
   test.beforeEach(async ({ oldApp, spicyApp }) => {
-    await clearBrowserState(oldApp);
-    await clearBrowserState(spicyApp);
     await selectProject(oldApp, TEST_PROJECT);
     await selectProject(spicyApp, TEST_PROJECT);
+    await clearBrowserState(oldApp);
+    await clearBrowserState(spicyApp);
   });
 
   test('B1: Bash echo to /tmp/', async ({ oldApp, spicyApp }) => {

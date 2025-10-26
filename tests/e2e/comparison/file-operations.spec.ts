@@ -23,13 +23,13 @@ const TIMESTAMP = Date.now();
 
 test.describe('File Operations: Write Tests', () => {
   test.beforeEach(async ({ oldApp, spicyApp }) => {
-    // Clear browser state for both apps
-    await clearBrowserState(oldApp);
-    await clearBrowserState(spicyApp);
-
-    // Select same project on both apps
+    // Select same project on both apps (this navigates to the page)
     await selectProject(oldApp, TEST_PROJECT);
     await selectProject(spicyApp, TEST_PROJECT);
+
+    // Clear browser state AFTER navigating
+    await clearBrowserState(oldApp);
+    await clearBrowserState(spicyApp);
   });
 
   test('W1: Write to /tmp/ directory', async ({ oldApp, spicyApp }) => {
@@ -183,10 +183,10 @@ test.describe('File Operations: Write Tests', () => {
 
 test.describe('File Operations: Read Tests', () => {
   test.beforeEach(async ({ oldApp, spicyApp }) => {
-    await clearBrowserState(oldApp);
-    await clearBrowserState(spicyApp);
     await selectProject(oldApp, TEST_PROJECT);
     await selectProject(spicyApp, TEST_PROJECT);
+    await clearBrowserState(oldApp);
+    await clearBrowserState(spicyApp);
   });
 
   test('R1: Read from /tmp/ directory', async ({ oldApp, spicyApp }) => {
@@ -260,10 +260,10 @@ test.describe('File Operations: Read Tests', () => {
 
 test.describe('File Operations: Edit Tests', () => {
   test.beforeEach(async ({ oldApp, spicyApp }) => {
-    await clearBrowserState(oldApp);
-    await clearBrowserState(spicyApp);
     await selectProject(oldApp, TEST_PROJECT);
     await selectProject(spicyApp, TEST_PROJECT);
+    await clearBrowserState(oldApp);
+    await clearBrowserState(spicyApp);
   });
 
   test('E1: Edit file in /tmp/', async ({ oldApp, spicyApp }) => {

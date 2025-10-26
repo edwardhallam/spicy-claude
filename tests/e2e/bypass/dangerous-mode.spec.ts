@@ -25,8 +25,8 @@ const TIMESTAMP = Date.now();
 
 test.describe('Bypass Permissions Mode', () => {
   test.beforeEach(async ({ spicyApp }) => {
-    await clearBrowserState(spicyApp);
     await selectProject(spicyApp, TEST_PROJECT);
+    await clearBrowserState(spicyApp);
 
     // Switch to bypass permissions mode
     await switchPermissionMode(spicyApp, 'bypass permissions');

@@ -1,6 +1,9 @@
 .claude/
 !.claude/settings.json
 
+# Dependencies
+node_modules/
+
 # Build artifacts
 dist/
 backend/dist/

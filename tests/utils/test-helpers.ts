@@ -9,13 +9,20 @@ import type { Page } from '@playwright/test';
 
 /**
  * Clear all browser state (localStorage, sessionStorage, cookies)
+ *
+ * NOTE: This must be called AFTER navigating to a page, not before.
+ * If called on about:blank, it will fail with localStorage access error.
  */
 export async function clearBrowserState(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
-  await page.context().clearCookies();
+  // Only clear if we're on an actual page (not about:blank)
+  const url = page.url();
+  if (url && url !== 'about:blank' && !url.startsWith('data:')) {
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+    await page.context().clearCookies();
+  }
 }
 
 /**

@@ -22,8 +22,8 @@ const TIMESTAMP = Date.now();
 
 test.describe('Permission Prompts', () => {
   test.beforeEach(async ({ spicyApp }) => {
-    await clearBrowserState(spicyApp);
     await selectProject(spicyApp, TEST_PROJECT);
+    await clearBrowserState(spicyApp);
   });
 
   test('Permission prompt appears for file write', async ({ spicyApp }) => {
