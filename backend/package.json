@@ -61,7 +61,7 @@
     "@logtape/logtape": "^1.0.0",
     "@logtape/pretty": "^1.0.0",
     "commander": "^14.0.0",
-    "hono": "^4.8.5"
+    "hono": "^4.9.12"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
