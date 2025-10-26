@@ -374,14 +374,56 @@ npm run test:report
 5. **Record differences** - Use `recordDifference()` for any deviations found
 6. **Generate summaries** - After test runs, create markdown reports for user
 
+## Recent Fixes (2025-10-26)
+
+### Issue: 5 Tests Timing Out
+
+**Symptoms:**
+- Tests BP-W1, BP-W2, BP-B1 failing with "Test timeout of 30000ms exceeded"
+- Screenshots showed operations completed successfully
+- Files were created but `response.success` was false
+
+**Root Causes:**
+1. **Timeout Issue**: Playwright's default 30s test timeout was too short for Claude API calls (60-90s in bypass mode)
+2. **Success Detection**: `waitForResponse()` was receiving empty response text, causing false negatives
+
+**Fixes Applied:**
+- `playwright.config.ts:24` - Increased global test timeout from 30s to 120s
+- `tests/utils/test-helpers.ts:87-100` - Added positive indicators (done/created/result/success) to success detection
+- `tests/e2e/bypass/dangerous-mode.spec.ts:51-56, 74-77, 95-98` - Changed assertions to check file existence (primary measure) instead of relying solely on text parsing
+
+**Result:** All 20 tests passing (100% success rate)
+
+### Debugging Empty Response Text
+
+If you encounter `response.success = false` but operations succeed:
+
+1. **Check the actual outcome** (file exists, command executed)
+2. **Add debug logging**:
+   ```typescript
+   const response = await waitForResponse(page);
+   console.log('Response text:', response.text);
+   console.log('Response length:', response.text.length);
+   ```
+3. **Use functional assertions** instead of text parsing:
+   ```typescript
+   // Good: Check actual outcome
+   expect(await fileExists(testFile)).toBe(true);
+
+   // Less reliable: Parse response text
+   expect(response.success).toBe(true);
+   ```
+
 ## Questions?
 
 - Playwright docs: https://playwright.dev
 - Test examples: See `tests/e2e/` for reference implementations
 - Utilities API: Check `tests/utils/test-helpers.ts` and `comparison-helpers.ts`
+- Recent fixes: See commit `053e514` for timeout and success detection fixes
 
 ---
 
-**Last Updated**: 2025-10-25
+**Last Updated**: 2025-10-26
 **Test Framework**: Playwright v1.56+
 **Node Version**: 20.11.0+
+**Status**: All 20 tests passing ✅
