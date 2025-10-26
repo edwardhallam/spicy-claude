@@ -1,12 +1,28 @@
-# 🌐 Claude Code Web UI
+# 🌶️ Spicy Claude
 
-[![npm Version](https://img.shields.io/npm/v/claude-code-webui)](https://www.npmjs.com/package/claude-code-webui)
-[![npm Downloads](https://img.shields.io/npm/dt/claude-code-webui)](https://www.npmjs.com/package/claude-code-webui)
-[![License](https://img.shields.io/github/license/sugyan/claude-code-webui)](https://github.com/sugyan/claude-code-webui/blob/main/LICENSE)
-[![CI](https://github.com/sugyan/claude-code-webui/actions/workflows/ci.yml/badge.svg)](https://github.com/sugyan/claude-code-webui/actions/workflows/ci.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/sugyan/claude-code-webui)](https://github.com/sugyan/claude-code-webui/releases)
+[![License](https://img.shields.io/github/license/edwardhallam/spicy-claude)](https://github.com/edwardhallam/spicy-claude/blob/main/LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/edwardhallam/spicy-claude/releases)
+[![Based on](https://img.shields.io/badge/based%20on-claude--code--webui%200.1.56-green)](https://github.com/sugyan/claude-code-webui)
 
-> **A modern web interface for Claude Code CLI** - Transform your command-line coding experience into an intuitive web-based chat interface
+> **Spicy Claude** - A web interface for Claude Code CLI with **dangerous mode** that bypasses all permission prompts
+
+## ⚠️ **DANGER ZONE** ⚠️
+
+This fork adds a **4th permission mode** called "Dangerous Mode" (☠️) that completely bypasses ALL permission checks. When enabled, Claude can:
+
+- ✅ Execute ANY bash command without asking
+- ✅ Read/write ANY file without prompting
+- ✅ Install packages, modify system settings, delete files
+- ⚠️ **DO THIS AT YOUR OWN RISK**
+
+**Use Cases:**
+- ✅ Trusted development environments
+- ✅ Sandboxed containers
+- ✅ Personal projects where speed > safety
+- ❌ **NEVER use in production**
+- ❌ **NEVER use with untrusted code**
+
+**Based on:** [claude-code-webui v0.1.56](https://github.com/sugyan/claude-code-webui) by sugyan
 
 [🎬 **View Demo**](https://github.com/user-attachments/assets/33e769b0-b17e-470b-8163-c71ef186b5af)
 
@@ -81,13 +97,14 @@ Instead of being limited to command-line interactions, Claude Code Web UI brings
 
 ### 🎯 Key Features
 
-- **📋 Permission Mode Switching** - Toggle between normal and plan mode execution
+- **☠️ DANGEROUS MODE** - 4th permission mode that bypasses ALL prompts (new in Spicy Claude!)
+- **📋 Permission Mode Switching** - Toggle between normal, plan, accept edits, and dangerous modes
 - **🔄 Real-time streaming responses** - Live Claude Code output in chat interface
 - **📁 Project directory selection** - Visual project picker for context-aware sessions
 - **💬 Conversation history** - Browse and restore previous chat sessions
-- **🛠️ Tool permission management** - Granular control over Claude's tool access
+- **🛠️ Tool permission management** - Granular control over Claude's tool access (or bypass entirely)
 - **🎨 Dark/light theme support** - Automatic system preference detection
-- **📱 Mobile-responsive design** - Touch-optimized interface for any device
+- **📱 Mobile-responsive design** - Touch-optimized interface including iOS Safari
 
 ---
 
@@ -95,30 +112,28 @@ Instead of being limited to command-line interactions, Claude Code Web UI brings
 
 Get up and running in under 2 minutes:
 
-### Option 1: npm Package (Recommended)
+### Option 1: From Source (Recommended for Spicy Claude)
 
 ```bash
-# Install globally via npm
-npm install -g claude-code-webui
+# Clone the repository
+git clone https://github.com/edwardhallam/spicy-claude.git
+cd spicy-claude
+
+# Install dependencies
+cd frontend && npm install && cd ..
+cd backend && npm install && cd ..
+
+# Build production version
+cd frontend && npm run build && cd ..
+cd backend && npm run build && cd ..
 
 # Start the server
-claude-code-webui
+cd backend && node dist/cli/node.js
 
 # Open browser to http://localhost:8080
 ```
 
-### Option 2: Binary Release
-
-```bash
-# Download and run (macOS ARM64 example)
-curl -LO https://github.com/sugyan/claude-code-webui/releases/latest/download/claude-code-webui-macos-arm64
-chmod +x claude-code-webui-macos-arm64
-./claude-code-webui-macos-arm64
-
-# Open browser to http://localhost:8080
-```
-
-### Option 3: Development Mode
+### Option 2: Development Mode
 
 ```bash
 # Backend (choose one)
@@ -137,6 +152,61 @@ cd frontend && npm run dev
 - ✅ **Node.js >=20.0.0** (for npm installation) or **Deno** (for development)
 - ✅ **Modern browser** (Chrome, Firefox, Safari, Edge)
 - ✅ **dotenvx** (for development): [Install guide](https://dotenvx.com/docs/install)
+
+---
+
+## ☠️ How to Use Dangerous Mode
+
+Dangerous Mode is the **primary feature** of Spicy Claude. Here's how to use it:
+
+### Activating Dangerous Mode
+
+**Method 1: Keyboard Shortcut** (Recommended)
+1. Press `Ctrl+Shift+M` (or `Cmd+Shift+M` on Mac) **three times**
+2. Mode cycles: 🔧 Normal → ⏸ Plan → ⏵⏵ Accept Edits → **☠️ DANGEROUS**
+
+**Method 2: Click Mode Button**
+1. Look for the mode button at the bottom of the chat input
+2. Click **three times** to cycle to Dangerous Mode
+3. Button text changes to: **"☠️ DANGEROUS MODE (bypass all)"**
+
+### Visual Indicators
+
+When Dangerous Mode is active, you'll see:
+
+- ✅ **Red floating badge** in top-right: "🚨 DANGEROUS MODE - All permissions bypassed"
+- ✅ **Red border** around message input box
+- ✅ **Red text** on mode button
+- ✅ **Console warning** (F12 Developer Tools): "⚠️ DANGEROUS MODE ENABLED"
+
+### Deactivating Dangerous Mode
+
+Press `Ctrl+Shift+M` once to cycle back to Normal Mode (🔧)
+
+### What Dangerous Mode Does
+
+When active, Claude will **execute ALL commands without asking**:
+
+```
+You: "Create a Python script that reads all files in /tmp and deletes .log files"
+
+In Normal Mode:   ❓ Prompts: "Allow file read? Allow file delete?"
+In Dangerous Mode: ✅ Executes immediately, no prompts
+```
+
+### Safety Recommendations
+
+✅ **DO use in:**
+- Personal development machines
+- Sandboxed Docker containers
+- Test environments
+- Projects where you trust Claude completely
+
+❌ **DON'T use in:**
+- Production systems
+- Shared computers
+- When working with unfamiliar codebases
+- When you're unsure what Claude will do
 
 ---
 
