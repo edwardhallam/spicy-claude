@@ -1,0 +1,54 @@
+# Public Repository Filter
+# Files and directories to EXCLUDE from public repository
+# One pattern per line, supports wildcards
+
+# Personal development instructions
+CLAUDE.md
+
+# Personal deployment documentation
+docs/DEPLOYMENT.md
+docs/MONITORING.md
+docs/OPERATIONS.md
+docs/UPDATES.md
+docs/AUTOMATION.md
+
+# Personal deployment scripts
+deployment/
+
+# Personal notes and reports
+spicy-claude-*.md
+spicy-claude-*.txt
+
+# Environment files (even .example can leak info)
+.env
+.env.local
+.env.production
+
+# Auto-updater state files
+.auto-updater.lock
+.last-auto-update
+
+# Personal automation workflows
+.github/workflows/upstream-sync.yml
+.github/workflows/sync-public.yml
+
+# Backup branches
+backup-*
+
+# Personal test configurations that reference specific paths
+# Note: tests/ directory will be included but sanitized separately
+tests/reports/
+tests/*.har
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+/tmp/
+
+# MacOS specific
+.DS_Store
+
+# LaunchAgent plists with personal paths
+*.plist
