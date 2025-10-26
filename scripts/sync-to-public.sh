@@ -127,7 +127,7 @@ done
 # Sanitize other test files if they contain personal paths
 echo ""
 echo "🔧 Sanitizing test files..."
-TEST_FILES=$(find tests -name "*.ts" -o -name "*.spec.ts" 2>/dev/null || true)
+TEST_FILES=$(find tests -name "*.ts" -o -name "*.spec.ts" -o -name "*.md" 2>/dev/null || true)
 if [ -n "${TEST_FILES}" ] && [ "${DRY_RUN}" = false ]; then
     for file in ${TEST_FILES}; do
         if grep -q "/Users/edwardhallam\|homelab-conductor" "${file}" 2>/dev/null; then
@@ -145,28 +145,81 @@ elif [ -n "${TEST_FILES}" ]; then
     echo "  [DRY RUN] Would sanitize test files with personal paths"
 fi
 
+# Sanitize deployment-examples files
+echo ""
+echo "🔧 Sanitizing deployment-examples..."
+if [ "${DRY_RUN}" = false ]; then
+    if [ -d "deployment-examples" ]; then
+        for example_file in deployment-examples/*; do
+            if [ -f "${example_file}" ]; then
+                if grep -q "/Users/edwardhallam\|homelab-conductor" "${example_file}" 2>/dev/null; then
+                    sed -i.bak \
+                        -e 's|/Users/edwardhallam/projects/spicy-claude|/path/to/spicy-claude|g' \
+                        -e 's|/Users/edwardhallam/projects/homelab-conductor|/path/to/monitoring-stack|g' \
+                        -e 's|/Users/edwardhallam|/Users/user|g' \
+                        -e 's|homelab-conductor|monitoring-stack|g' \
+                        "${example_file}"
+                    rm -f "${example_file}.bak"
+                    git add "${example_file}"
+                    echo "  ✅ Sanitized ${example_file}"
+                fi
+            fi
+        done
+    fi
+else
+    echo "  [DRY RUN] Would sanitize deployment-examples with personal references"
+fi
+
 # Verify no secrets are present
 echo ""
 echo "🔍 Checking for potential secrets..."
+
+# Only check files that will actually be synced
+# Build list of files to exclude from secret check based on filter
+EXCLUDE_PATTERNS=""
+while IFS= read -r pattern || [ -n "$pattern" ]; do
+    [[ "$pattern" =~ ^#.*$ ]] && continue
+    [[ -z "$pattern" ]] && continue
+    EXCLUDE_PATTERNS="${EXCLUDE_PATTERNS} :(exclude)${pattern}"
+done < "${FILTER_FILE}"
+
 SECRET_PATTERNS=(
-    "webhook"
     "api.*key"
     "password"
-    "edwardhallam"
-    "homelab-conductor"
-    "/Users/"
+    "token"
 )
 
 FOUND_SECRETS=false
 for pattern in "${SECRET_PATTERNS[@]}"; do
-    # Exclude package-lock.json, and files that use GitHub secrets variables properly
-    if git grep -i "${pattern}" -- '*.sh' '*.md' '*.yml' '*.yaml' '*.json' 2>/dev/null \
+    # Only check in files that would be synced (exclude filtered files)
+    if git grep -i "${pattern}" ${EXCLUDE_PATTERNS} -- '*.sh' '*.md' '*.yml' '*.yaml' '*.json' 2>/dev/null \
         | grep -v ".github/public-repo-filter.txt" \
         | grep -v "scripts/sync-to-public.sh" \
         | grep -v "package-lock.json" \
         | grep -v '\${{ secrets\.' \
-        | grep -v "edwardhallam/spicy-claude-public"; then
+        | grep -v "edwardhallam/spicy-claude-public" \
+        | grep -v "SLACK_WEBHOOK_URL" \
+        | grep -v "GitHub personal access token"; then
         echo "  ⚠️  Found potential secret pattern: ${pattern}"
+        FOUND_SECRETS=true
+    fi
+done
+
+# Check for personal references that should be sanitized
+PERSONAL_PATTERNS=(
+    "edwardhallam[^/]"  # Match edwardhallam but not in github URLs
+    "homelab-conductor"
+    "/Users/edwardhallam"
+)
+
+for pattern in "${PERSONAL_PATTERNS[@]}"; do
+    # Only check in files that would be synced, excluding already-sanitized references
+    if git grep -E "${pattern}" ${EXCLUDE_PATTERNS} -- '*.sh' '*.md' '*.yml' '*.yaml' '*.json' 2>/dev/null \
+        | grep -v ".github/public-repo-filter.txt" \
+        | grep -v "scripts/sync-to-public.sh" \
+        | grep -v "edwardhallam/spicy-claude-public" \
+        | grep -v "/path/to/"; then
+        echo "  ⚠️  Found personal reference that should be sanitized: ${pattern}"
         FOUND_SECRETS=true
     fi
 done
