@@ -178,7 +178,12 @@ export function ChatInput({
 
   // Get next permission mode for cycling
   const getNextPermissionMode = (current: PermissionMode): PermissionMode => {
-    const modes: PermissionMode[] = ["default", "plan", "acceptEdits", "dangerous"];
+    const modes: PermissionMode[] = [
+      "default",
+      "plan",
+      "acceptEdits",
+      "dangerous",
+    ];
     const currentIndex = modes.indexOf(current);
     return modes[(currentIndex + 1) % modes.length];
   };

@@ -177,7 +177,9 @@ export function ChatPage() {
             ...(currentSessionId ? { sessionId: currentSessionId } : {}),
             allowedTools: tools || allowedTools,
             ...(workingDirectory ? { workingDirectory } : {}),
-            permissionMode: toSDKPermissionMode(overridePermissionMode || permissionMode),
+            permissionMode: toSDKPermissionMode(
+              overridePermissionMode || permissionMode,
+            ),
           } as ChatRequest),
         });
 

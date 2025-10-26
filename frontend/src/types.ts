@@ -175,7 +175,9 @@ export type PermissionMode = "default" | "plan" | "acceptEdits" | "dangerous";
 // SDK type integration utilities
 export function toSDKPermissionMode(uiMode: PermissionMode): SDKPermissionMode {
   // Map "dangerous" UI mode to "bypassPermissions" SDK mode
-  return uiMode === "dangerous" ? "bypassPermissions" : (uiMode as SDKPermissionMode);
+  return uiMode === "dangerous"
+    ? "bypassPermissions"
+    : (uiMode as SDKPermissionMode);
 }
 
 export function fromSDKPermissionMode(
