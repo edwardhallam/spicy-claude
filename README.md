@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/edwardhallam/spicy-claude)](https://github.com/edwardhallam/spicy-claude/blob/main/LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/edwardhallam/spicy-claude/releases)
 
-> **Spicy Claude** - A web interface for Claude Code CLI with **bypass permissions mode** and a redesigned chat-like interface
+> **Spicy Claude** - A web interface for Claude Code CLI with a redesigned chat-like interface
 
 **Initial version based on [claude-code-webui v0.1.56](https://github.com/sugyan/claude-code-webui) by sugyan**
 
@@ -11,7 +11,6 @@
 
 ### 🎯 Key Features
 
-- **🔓 Bypass Permissions Mode** - 4th permission mode that bypasses ALL prompts for trusted environments
 - **🎨 Redesigned UI** - New chat-like interface in development (access via `/prototype` route)
 - **🔄 Dual Interface** - Toggle between classic and redesigned UI
 - **📱 Mobile-Responsive** - Touch-optimized interface for all devices
@@ -63,54 +62,6 @@ cd frontend && npm run dev
 # Access: http://localhost:3000
 ```
 
-## 🔓 Bypass Permissions Mode
-
-The **primary feature** of Spicy Claude - a 4th permission mode that completely bypasses ALL permission checks.
-
-### Activation
-
-**Method 1: Keyboard Shortcut** (Recommended)
-- Press `Ctrl+Shift+M` (or `Cmd+Shift+M` on Mac) **three times**
-- Mode cycles: 🔧 Normal → ⏸ Plan → ⏵⏵ Accept Edits → **☠️ BYPASS**
-
-**Method 2: Click Mode Button**
-- Click the mode button at the bottom of the chat input **three times**
-- Button text changes to: **"☠️ BYPASS MODE (all permissions bypassed)"**
-
-### Visual Indicators
-
-When Bypass Mode is active:
-
-- ✅ **Red floating badge** in top-right: "🚨 BYPASS MODE - All permissions bypassed"
-- ✅ **Red border** around message input box
-- ✅ **Red text** on mode button
-- ✅ **Console warning** (F12 Developer Tools): "⚠️ BYPASS MODE ENABLED"
-
-### What It Does
-
-When active, Claude will **execute ALL commands without asking**:
-
-```
-You: "Create a Python script that reads all files in /tmp and deletes .log files"
-
-In Normal Mode:      ❓ Prompts: "Allow file read? Allow file delete?"
-In Bypass Mode:      ✅ Executes immediately, no prompts
-```
-
-### Safety Recommendations
-
-✅ **DO use in:**
-- Personal development machines
-- Sandboxed Docker containers
-- Test environments
-- Projects where you trust Claude completely
-
-❌ **DON'T use in:**
-- Production systems
-- Shared computers
-- When working with unfamiliar codebases
-- When you're unsure what Claude will do
-
 ## 🎨 Redesigned UI (In Development)
 
 Spicy Claude includes a redesigned chat-like interface accessible at `/prototype` (development mode only).
@@ -160,7 +111,6 @@ make check                    # Run all quality checks
 
 # Testing
 npm run test:ui               # Run all E2E tests (~15 min)
-npm run test:bypass           # Bypass mode tests only
 npm run test:report           # View HTML test report
 make test                     # Run unit tests (frontend + backend)
 
@@ -291,7 +241,6 @@ lefthook run pre-commit
 ### E2E Tests (Playwright)
 
 20+ comprehensive E2E tests covering:
-- Bypass permissions mode functionality
 - Permission dialogs and modes
 - Chat interface and streaming
 - Settings and theme switching
@@ -303,7 +252,6 @@ lefthook run pre-commit
 npm run test:ui
 
 # Run specific test suite
-npm run test:bypass          # Bypass mode tests
 npm run test:ui -- tests/e2e/prototype/  # Prototype tests
 
 # View test report
@@ -411,7 +359,6 @@ See [docs/UPDATES.md](docs/UPDATES.md) for detailed update procedures.
 <summary><strong>Q: What's the difference between this and claude-code-webui?</strong></summary>
 
 Spicy Claude adds:
-- Bypass permissions mode (4th permission mode)
 - Redesigned chat-like interface (in development)
 - Production deployment setup (LaunchAgent)
 - Comprehensive E2E test suite (20+ tests)
