@@ -26,6 +26,262 @@ lefthook install
 lefthook run pre-commit
 ```
 
+## Specialized Agents
+
+Spicy Claude includes a team of specialized AI agents configured in `.claude/agents/`. Each agent is optimized for specific tasks and can be invoked individually or in parallel for maximum efficiency.
+
+### Available Agents
+
+#### documentation-writer
+**Purpose**: Technical documentation, PRDs, API docs, and user guides
+
+**Use when:**
+- Starting a new feature (create lean PRD for MVP)
+- Documenting APIs or system architecture
+- Writing user-facing guides
+- Creating technical specifications
+- Updating project documentation (README, CONTRIBUTING, etc.)
+- Creating operational runbooks
+
+**Examples:**
+```
+@documentation-writer Create a lean PRD for adding chat export functionality
+@documentation-writer Update the API documentation for the new /api/sessions endpoint
+@documentation-writer Write a troubleshooting guide for common deployment issues
+```
+
+#### devops-engineer
+**Purpose**: CI/CD pipelines, deployment automation, monitoring, and infrastructure
+
+**Use when:**
+- Setting up or modifying CI/CD pipelines
+- Deploying services or applications
+- Creating monitoring and alerting systems
+- Building auto-update mechanisms
+- Writing deployment scripts
+- Setting up health checks and status endpoints
+- Troubleshooting production issues
+
+**Examples:**
+```
+@devops-engineer Add a health check endpoint for the backend service
+@devops-engineer Set up Prometheus alerts for high memory usage
+@devops-engineer Create a deployment script for the staging environment
+```
+
+#### test-engineer
+**Purpose**: Test strategy, test automation, quality assurance, and TDD validation
+
+**Use when:**
+- Starting a new feature (define tests first - TDD approach)
+- After writing any code (create/run tests immediately)
+- Before deployment (validation and smoke tests)
+- Setting up CI/CD test automation
+- Debugging issues (create reproduction tests)
+- Reviewing test coverage and quality metrics
+
+**Examples:**
+```
+@test-engineer Write Playwright tests for the new chat export feature
+@test-engineer Create unit tests for the session management hook
+@test-engineer Review test coverage for the backend handlers
+```
+
+#### fullstack-developer
+**Purpose**: Complete vertical-slice feature development from UI to API to database
+
+**Use when:**
+- Building new features that span frontend and backend
+- Implementing complete user workflows
+- Creating vertical slices (UI → API → DB)
+- Integrating frontend and backend components
+- Refactoring features across the stack
+
+**Examples:**
+```
+@fullstack-developer Implement chat export as a complete vertical slice
+@fullstack-developer Add session persistence with frontend UI and backend API
+@fullstack-developer Refactor the permission mode system for better maintainability
+```
+
+#### code-reviewer
+**Purpose**: Code quality, best practices, security review, and architecture feedback
+
+**Use when:**
+- Reviewing pull requests or code changes
+- Refactoring existing code
+- Evaluating architecture decisions
+- Identifying security issues
+- Optimizing performance
+- Ensuring TypeScript best practices
+- Before merging significant changes
+
+**Examples:**
+```
+@code-reviewer Review the new authentication middleware for security issues
+@code-reviewer Analyze the streaming implementation for performance bottlenecks
+@code-reviewer Suggest refactoring for the chat state management code
+```
+
+### Parallel Agent Execution
+
+Multiple agents can work simultaneously for maximum efficiency. This is especially powerful for complex tasks that span multiple domains.
+
+**Pattern: Feature Development Pipeline**
+```
+# Phase 1: Planning & Design (parallel)
+@documentation-writer Create lean PRD for chat export feature
+@test-engineer Define test strategy for chat export
+
+# Phase 2: Implementation (parallel after planning)
+@fullstack-developer Implement the chat export feature
+@test-engineer Write tests for chat export (can start as soon as PRD is ready)
+
+# Phase 3: Quality & Deployment (parallel)
+@code-reviewer Review the chat export implementation
+@devops-engineer Prepare deployment checklist for chat export
+@test-engineer Run full test suite and report results
+```
+
+**Pattern: Production Issue Response**
+```
+# Parallel investigation and response
+@devops-engineer Check production logs and metrics for the reported issue
+@test-engineer Create reproduction tests for the bug
+@code-reviewer Analyze the affected code for potential root causes
+@documentation-writer Document the incident and workarounds
+```
+
+**Pattern: Release Preparation**
+```
+# Parallel release tasks
+@test-engineer Run full regression test suite
+@code-reviewer Final code quality review of all changes
+@devops-engineer Prepare deployment scripts and rollback plan
+@documentation-writer Update CHANGELOG and release notes
+```
+
+### Best Practices for Agent Usage
+
+1. **Be Specific**: Provide clear context and expected outcomes
+   - Good: "@test-engineer Write Playwright tests for the dangerous mode toggle including edge cases"
+   - Bad: "@test-engineer Add tests"
+
+2. **Use Parallel Execution**: Invoke multiple agents when tasks are independent
+   ```
+   @test-engineer Write unit tests for the new API endpoint
+   @documentation-writer Document the API endpoint specification
+   ```
+
+3. **Respect Dependencies**: Some tasks require sequential execution
+   ```
+   # Sequential: PRD → Implementation → Tests
+   @documentation-writer Create PRD for feature X
+   # Wait for PRD, then:
+   @fullstack-developer Implement feature X based on PRD
+   # Wait for implementation, then:
+   @test-engineer Validate feature X implementation
+   ```
+
+4. **Leverage Specialization**: Use the right agent for the job
+   - Don't ask test-engineer to write production code
+   - Don't ask fullstack-developer to design monitoring dashboards
+   - Don't ask documentation-writer to implement features
+
+5. **Coordinate for Complex Features**: Use multiple agents in phases
+   ```
+   # Phase 1: Design
+   @documentation-writer + @code-reviewer + @test-engineer
+
+   # Phase 2: Build
+   @fullstack-developer + @test-engineer
+
+   # Phase 3: Deploy
+   @devops-engineer + @test-engineer + @documentation-writer
+   ```
+
+### Agent Communication Patterns
+
+**Handoff Pattern**: One agent completes work, next agent takes over
+```
+@documentation-writer Create PRD for user authentication
+# Output: PRD saved to docs/PRD-authentication.md
+
+@fullstack-developer Implement user authentication based on docs/PRD-authentication.md
+# Output: Feature implemented
+
+@test-engineer Validate authentication implementation
+# Output: Tests pass
+```
+
+**Parallel Pattern**: Multiple agents work simultaneously on independent tasks
+```
+@test-engineer Write E2E tests for checkout flow
+@documentation-writer Document checkout API endpoints
+@devops-engineer Set up monitoring for checkout performance
+# All three can run simultaneously
+```
+
+**Review Pattern**: One agent produces, another reviews
+```
+@fullstack-developer Refactor the session management module
+# Wait for completion, then:
+@code-reviewer Review the session management refactoring for issues
+```
+
+**Iterative Pattern**: Agents work in cycles for continuous improvement
+```
+# Iteration 1
+@fullstack-developer Add basic export functionality
+@test-engineer Test basic export
+@code-reviewer Review basic export
+
+# Iteration 2
+@fullstack-developer Add export format options based on feedback
+@test-engineer Test format options
+# Continue iterating...
+```
+
+### Verification and Tools
+
+**List Available Agents:**
+```bash
+cd /Users/edwardhallam/projects/spicy-claude
+claude
+# In Claude Code:
+/agents
+```
+
+**Agent Definitions Location:**
+`.claude/agents/` contains the markdown files defining each agent's capabilities and context.
+
+**Team Setup Documentation:**
+See `.claude/TEAM-SETUP.md` for team structure and iterative development workflow.
+
+### Integration with Automation
+
+Agents work seamlessly with automated systems documented in `docs/AUTOMATION.md`:
+
+**Automated Detection → Agent Response:**
+1. GitHub Actions / LaunchAgent / Monitoring detects issue
+2. Slack notification sent automatically
+3. Invoke agents for parallel investigation and resolution
+4. Automation validates the fix (CI/CD, health checks)
+
+**Example Workflow:**
+```bash
+# Auto-updater fails and rolls back (automated)
+# Slack notification received
+# Parallel agent response:
+@devops-engineer Analyze auto-updater logs
+@test-engineer Identify failing test
+@code-reviewer Review recent changes
+```
+
+**See Also:**
+- `docs/AUTOMATION.md` - Complete automation system documentation with agent workflow patterns
+- `.claude/TEAM-SETUP.md` - Agent team structure and coordination strategies
+
 ## Architecture
 
 ### Backend (Deno/Node.js)
@@ -180,7 +436,16 @@ npm run dev
 │   │   ├── types/       # Type definitions
 │   │   └── contexts/    # React contexts
 ├── shared/              # Shared TypeScript types
-└── CLAUDE.md           # Technical documentation
+├── .claude/             # AI agent definitions and configuration
+│   ├── agents/          # Specialized agent definitions
+│   │   ├── documentation-writer.md
+│   │   ├── devops-engineer.md
+│   │   ├── test-engineer.md
+│   │   ├── fullstack-developer.md
+│   │   └── code-reviewer.md
+│   ├── settings.json    # Agent configuration
+│   └── TEAM-SETUP.md    # Team structure and workflow
+└── CLAUDE.md           # Technical documentation (this file)
 ```
 
 ## Key Design Decisions
@@ -192,6 +457,7 @@ npm run dev
 5. **TypeScript Throughout**: Consistent type safety across all components
 6. **Project Directory Selection**: User-chosen working directories for contextual file access
 7. **Network Accessibility**: Production configured for local network access (0.0.0.0) while development defaults to localhost for security
+8. **Specialized Agents**: Domain-specific AI agents for parallel task execution and workflow optimization
 
 ## Claude Code SDK Types Reference
 
@@ -340,3 +606,4 @@ This fork (Spicy Claude) differs from the upstream claude-code-webui in these ke
 2. **Production Deployment**: LaunchAgent setup for macOS with comprehensive ops documentation
 3. **Comprehensive E2E Testing**: 20 Playwright tests for UI verification including bypass mode
 4. **Manual-Only Updates**: No automated updates by design for production stability
+5. **Specialized AI Agents**: Team of domain-specific agents for parallel workflow execution
