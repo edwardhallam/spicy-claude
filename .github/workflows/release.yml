@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - main
 
 jobs:
   build:
@@ -13,19 +13,16 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: claude-code-webui-linux-x64
+            artifact_name: spicy-claude-linux-x64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact_name: claude-code-webui-linux-arm64
+            artifact_name: spicy-claude-linux-arm64
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: claude-code-webui-macos-x64
+            artifact_name: spicy-claude-macos-x64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: claude-code-webui-macos-arm64
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            artifact_name: claude-code-webui-windows-x64
+            artifact_name: spicy-claude-macos-arm64
 
     steps:
       - name: Checkout code
@@ -80,116 +77,50 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/checkout@v4
         with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          fetch-depth: 0
 
-      - name: Install frontend dependencies
-        run: npm ci
-        working-directory: frontend
-
-      - name: Install Playwright browsers
-        run: npx playwright install chromium
-        working-directory: frontend
-
-      - name: Start development server
+      - name: Generate version tag
+        id: version
         run: |
-          cd frontend
-          npm run dev &
-          # Wait for server to be ready
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-        continue-on-error: false
-
-      - name: Record demo videos
-        run: |
-          cd frontend
-          npm run record-demo codeGeneration -- --theme=both
-        continue-on-error: true
-
-      - name: Stop development server
-        run: |
-          # Kill any remaining dev server processes
-          pkill -f "vite" || true
-        continue-on-error: true
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION="v1.0.0-${SHORT_SHA}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Download build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
-      - name: Upload release assets
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## Spicy Claude Release
+
+            **Version**: ${{ steps.version.outputs.version }}
+            **Commit**: ${{ steps.version.outputs.short_sha }}
+
+            ### Download Binaries
+
+            - **Linux x64**: `spicy-claude-linux-x64`
+            - **Linux ARM64**: `spicy-claude-linux-arm64`
+            - **macOS x64**: `spicy-claude-macos-x64`
+            - **macOS ARM64**: `spicy-claude-macos-arm64`
+
+            ### Installation
+
+            1. Download the binary for your platform
+            2. Make it executable: `chmod +x spicy-claude-*`
+            3. Run: `./spicy-claude-*`
+
+            For detailed installation instructions, see [DEPLOYMENT.md](https://github.com/edwardhallam/spicy-claude/blob/main/docs/DEPLOYMENT.md)
           files: |
             artifacts/*/*
-            frontend/demo-recordings/*.webm
-          draft: true
-          prerelease: false
-
-      - name: Publish release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
-        with:
-          generate_release_notes: true
           draft: false
           prerelease: false
-
-  npm-publish:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write # Required for OIDC authentication
-      contents: read # Required for repository access
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
-          cache: "npm"
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
-
-      - name: Update npm to latest version
-        run: npm install -g npm@latest
-
-      - name: Install backend dependencies
-        run: npm ci
-        working-directory: backend
-
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm ci
-          npm run build
-
-      - name: Build npm package
-        run: npm run build
-        working-directory: backend
-
-      - name: Test npm package
-        run: |
-          npm run test
-          # Test global installation
-          npm pack
-          PACKAGE_FILE=$(ls *.tgz)
-          npm install -g "./$PACKAGE_FILE"
-          # Test CLI functionality
-          claude-code-webui --version
-        working-directory: backend
-
-      - name: Publish to npm (dry-run)
-        run: npm publish --dry-run
-        working-directory: backend
-
-      - name: Publish to npm
-        run: npm publish
-        working-directory: backend
+          generate_release_notes: true

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Spicy Claude
 
-A web-based interface for Claude Code CLI with a **Dangerous Mode** that bypasses all permission prompts. This is a fork of claude-code-webui v0.1.56 by sugyan.
+A web-based interface for Claude Code CLI with a **Bypass Permissions Mode** that bypasses all permission prompts. Initial version based on claude-code-webui v0.1.56 by sugyan.
 
 ## Code Quality
 
@@ -164,7 +164,7 @@ Multiple agents can work simultaneously for maximum efficiency. This is especial
 ### Best Practices for Agent Usage
 
 1. **Be Specific**: Provide clear context and expected outcomes
-   - Good: "@test-engineer Write Playwright tests for the dangerous mode toggle including edge cases"
+   - Good: "@test-engineer Write Playwright tests for the bypass permissions mode toggle including edge cases"
    - Bad: "@test-engineer Add tests"
 
 2. **Use Parallel Execution**: Invoke multiple agents when tasks are independent
@@ -314,11 +314,11 @@ Agents work seamlessly with automated systems documented in `docs/AUTOMATION.md`
 
 **Key Types**: `StreamResponse`, `ChatRequest`, `AbortRequest`, `ProjectInfo`, `ConversationSummary`, `ConversationHistory`
 
-## Dangerous Mode (Spicy Claude's Key Feature)
+## Bypass Permissions Mode (Spicy Claude's Key Feature)
 
 **4th permission mode** that completely bypasses ALL permission checks. When enabled, Claude executes ANY command without prompting.
 
-**Activation**: Press `Ctrl+Shift+M` (or `Cmd+Shift+M` on Mac) **three times** to cycle to Dangerous Mode. Visual indicators include red floating badge, red border around input, red button text, and console warning.
+**Activation**: Press `Ctrl+Shift+M` (or `Cmd+Shift+M` on Mac) **three times** to cycle to Bypass Mode. Visual indicators include red floating badge, red border around input, red button text, and console warning.
 
 **Implementation**:
 - Frontend: `usePermissionMode` hook tracks mode state, `PlanPermissionInputPanel` component provides UI
@@ -600,10 +600,10 @@ gh api repos/edwardhallam/spicy-claude/pulls/PR_NUMBER/comments
 
 ## Project Distinguishing Features
 
-This fork (Spicy Claude) differs from the upstream claude-code-webui in these key ways:
+Initial version based on claude-code-webui v0.1.56 by sugyan. Key differentiators:
 
-1. **Dangerous Mode**: 4th permission mode that bypasses all prompts - the primary feature
-2. **Production Deployment**: LaunchAgent setup for macOS with comprehensive ops documentation
-3. **Comprehensive E2E Testing**: 20 Playwright tests for UI verification including bypass mode
-4. **Manual-Only Updates**: No automated updates by design for production stability
+1. **Bypass Permissions Mode**: 4th permission mode that bypasses all prompts - the primary feature
+2. **Redesigned UI**: Chat-like interface in development (accessible via /prototype route)
+3. **Production Deployment**: LaunchAgent setup for macOS with comprehensive ops documentation
+4. **Comprehensive E2E Testing**: 20 Playwright tests for UI verification including bypass mode
 5. **Specialized AI Agents**: Team of domain-specific agents for parallel workflow execution
